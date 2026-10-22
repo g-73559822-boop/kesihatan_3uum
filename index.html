@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Pendidikan Kesihatan Tahun 3 UUM Eksplorasi 3D: Cabaran Kesihatan</title>
+<style>
+:root{--navy:#15324b;--blue:#2d77b7;--gold:#ffd166;--green:#3e9b68;--pink:#ff83b5}
+*{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#9bd9ef;color:#102a43}
+#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none}
+.panel{background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(230,246,255,.92));border:2px solid rgba(21,50,75,.2);border-radius:16px;box-shadow:0 5px 0 rgba(21,50,75,.14),0 10px 24px rgba(13,44,66,.12);padding:10px 14px;backdrop-filter:blur(5px)}
+#brand{position:absolute;left:12px;top:12px;max-width:min(75vw,390px);font-weight:900;line-height:1.2}
+#brand small{display:block;font-size:12px;color:#476477;font-weight:700;margin-top:4px}
+#stats{position:absolute;right:12px;top:116px;text-align:right;font-weight:900;min-width:145px}
+#tip{position:absolute;left:50%;top:18%;transform:translateX(-50%);text-align:center;max-width:90vw;font-weight:800}
+#interaction{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);pointer-events:auto;border:0;border-radius:16px;background:linear-gradient(180deg,#ffe48a,#ffc533);color:#253746;padding:14px 20px;font-size:16px;font-weight:900;box-shadow:0 5px 0 #c28b24,0 8px 20px rgba(0,0,0,.18);display:none;white-space:nowrap}
+#interaction:active{transform:translateX(-50%) translateY(3px);box-shadow:0 2px 0 #c28b24}
+#joystick{position:absolute;left:18px;bottom:18px;width:142px;height:142px;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;user-select:none}
+#joyBase{width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.88),rgba(43,84,111,.62));border:3px solid rgba(255,255,255,.95);box-shadow:inset 0 0 0 5px rgba(21,50,75,.12),0 6px 16px rgba(0,0,0,.25);position:relative;touch-action:none}
+#joyThumb{position:absolute;left:50%;top:50%;width:52px;height:52px;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(145deg,#fff,#d7e9f4);border:3px solid #2d77b7;box-shadow:0 4px 0 rgba(21,50,75,.25);pointer-events:none}
+#joyLabel{position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(255,255,255,.86);padding:3px 7px;border-radius:8px;font-size:9px;font-weight:900;color:#173a53}
+#jump{position:absolute;right:18px;bottom:28px;pointer-events:auto;border:0;border-radius:50%;width:72px;height:72px;background:#75e0a0;color:#17482d;font-weight:900;box-shadow:0 5px 0 #39975d}
+#overlay{position:fixed;inset:0;background:rgba(10,29,44,.58);display:flex;align-items:center;justify-content:center;padding:14px;z-index:5}
+.modal{background:#fffdf7;border-radius:22px;width:min(760px,100%);max-height:94vh;overflow:auto;padding:22px;border:4px solid #ffd166;box-shadow:0 10px 0 rgba(0,0,0,.2)}
+.modal h1,.modal h2{margin:0 0 10px;color:#15324b}.modal p{line-height:1.5}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;font-size:15px;background:linear-gradient(180deg,#3996df,#2169a6);color:white;cursor:pointer;margin:4px;box-shadow:0 4px 0 #174f7d;transition:transform .12s,filter .12s}.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #174f7d;filter:brightness(.97)}
+.btn.gold{background:#ffd166;color:#17324b}.btn:disabled{opacity:.5}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:12px 0}
+.choice{background:#f1f7fb;border:2px solid #b8d5e6;color:#17324b;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
+.choice.selected{background:#d8f4df;border-color:#35a56b}
+.qrow{padding:10px 0;border-bottom:1px solid #dce6ed}
+.qrow select{padding:9px;border:2px solid #bdd0dc;border-radius:10px;font-size:15px;margin-top:7px;max-width:100%}
+#feedback{font-weight:900;margin:12px 0}
+#sourceImage{display:block;width:100%;max-width:670px;border-radius:10px;border:1px solid #d4dce2;margin:12px auto}
+#legend{position:absolute;right:12px;bottom:14px;font-size:11px;color:#17324b;background:rgba(255,255,255,.76);border-radius:10px;padding:6px 9px}
+@media(max-width:600px){#brand{font-size:13px;padding:8px 10px;max-width:calc(100vw - 24px)}#brand small{font-size:10px}#stats{font-size:12px;padding:7px 9px;top:94px;right:8px;min-width:118px}#tip{top:20%;font-size:12px;padding:8px 10px}#joystick{left:5px;bottom:7px;transform:scale(.88);transform-origin:bottom left}#jump{width:62px;height:62px;right:12px;bottom:22px}#interaction{bottom:96px;font-size:14px;padding:12px 14px}.modal{padding:16px}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hud">
+ <div id="brand" class="panel">🎮 Pendidikan Kesihatan Tahun 3 UUM Eksplorasi 3D<small>Cabaran Kesihatan: Merokok dan Nyamuk</small></div>
+ <div id="stats" class="panel">⭐ Markah: <span id="score">0</span>/7<br><small id="missions">Soalan dijawab: 0/2</small></div>
+ <div id="tip" class="panel">Cari Cikgu Azrai dan Cikgu Amirul untuk menjawab dua soalan kesihatan!</div>
+ <button id="interaction">💬 Berinteraksi</button>
+ <div id="joystick" aria-label="Pad seret untuk bergerak"><div id="joyBase"><div id="joyThumb"></div></div><div id="joyLabel">SERET UNTUK BERGERAK</div></div>
+ <button id="jump">LOMPAT</button>
+ <div id="legend">WASD / anak panah • Telefon: kayu bedik</div>
+</div>
+<div id="overlay">
+ <div class="modal">
+  <h1>🎮 Pendidikan Kesihatan Tahun 3 UUM Eksplorasi 3D</h1>
+  <h2>Cabaran Kesihatan: Merokok dan Nyamuk</h2>
+  <p>Selamat datang! Terokai kawasan sekolah 3D gaya Roblox dan jawab <b>dua soalan asal</b>: kesan merokok dan penyakit bawaan nyamuk. Kandungan soalan dikekalkan berdasarkan bahan yang diberikan.</p>
+  <p><b>Cara bermain:</b> Gunakan WASD atau anak panah pada komputer. Pada telefon, seret kayu bedik dan tekan LOMPAT jika perlu. Dekati watak bertanda ❗ lalu tekan <b>Jumpa Cikgu</b> untuk membuka soalan.</p>
+  <p>🎯 Soalan 1: 5 isi tempat kosong (5 markah)<br>🎯 Soalan 2: Padanan 2 jenis nyamuk (2 markah)</p>
+  <button class="btn gold" id="start">MULA MENEROKA</button>
+ </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(() => {
+const root=document.getElementById('game');
+const overlay=document.getElementById('overlay');
+const interaction=document.getElementById('interaction');
+const tip=document.getElementById('tip');
+const scoreEl=document.getElementById('score');
+const missionsEl=document.getElementById('missions');
+let scene,camera,renderer,player,clock,started=false,finished=false,score=0,completed=new Set(),nearNPC=null,jumpV=0;
+const keys={}; const mobile={x:0,z:0};
+const npcList=[];
+function mat(color){return new THREE.MeshLambertMaterial({color});}
+function cube(w,h,d,color,x,y,z, parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
+function flat(w,d,color,x,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.15,d),mat(color));m.position.set(x,-.1,z);m.receiveShadow=true;scene.add(m);return m;}
+function makeTree(x,z){cube(.55,1.7, .55,0x79502e,x,.75,z);cube(1.65,1.2,1.5,0x36a75c,x,2,z);cube(1.25,1,1.2,0x55c96c,x,2.8,z);}
+function makeBuilding(x,z,w,d,color,label){cube(w,2.8,d,color,x,1.35,z);cube(w+.2,.25,d+.2,0x42566b,x,2.85,z);for(let xx=x-w*.28;xx<x+w*.3;xx+=w*.28){cube(.55,.8,.12,0x9de4ff,xx,1.8,z+d/2+.07);cube(.55,.8,.12,0x9de4ff,xx,1.8,z-d/2-.07)}cube(w*.42,.45,.16,0xffd166,x,3.35,z+d/2+.12); }
+function makePerson(x,z,shirt,pants,kind,id,name,mission,stationNo){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ // Watak gaya blok; label guru dipisahkan daripada model supaya tidak bertindih.
+ cube(.72,.78,.46,shirt,0,1.08,0,g);cube(.48,.48,.48,0xffd1a1,0,1.72,0,g);cube(.5,.14,.5,0x513b2c,0,1.99,0,g);
+ cube(.2,.68,.25,shirt,-.25,.47,0,g);cube(.2,.68,.25,shirt,.25,.47,0,g);cube(.24,.62,.27,pants,-.17,-.08,0,g);cube(.24,.62,.27,pants,.17,-.08,0,g);
+ cube(.27,.12,.3,0x25384d,-.17,-.39,.035,g);cube(.27,.12,.3,0x25384d,.17,-.39,.035,g);
+ let labelSprite=null; if(mission){labelSprite=makeLabel(name);labelSprite.position.set(0,2.85,0);g.add(labelSprite);}
+ npcList.push({id,name,mission,stationNo,group:g,mark:null,labelSprite,done:false});return g;}
+function makeLabel(text){const c=document.createElement('canvas');c.width=768;c.height=160;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.font='900 62px system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=7;ctx.strokeStyle='rgba(20,42,60,.95)';ctx.strokeText(text,384,80);ctx.fillStyle='#ffffff';ctx.fillText(text,384,80);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,depthTest:false}));s.scale.set(3.3,.68,1);s.renderOrder=10;return s;}
+function init(){
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x91d7f2);scene.fog=new THREE.Fog(0x91d7f2,28,75);
+ camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,150);
+ renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;root.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x5e8655,2));const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(-12,22,8);sun.castShadow=true;scene.add(sun);
+ // school grounds
+ flat(70,70,0x70bd67,0,0);
+ // Petak rumput hiasan, garisan laluan dan zon stesen berwarna untuk gaya permainan blok.
+ for(const [x,z,c] of [[-18,-16,0x8be078],[18,-16,0x8be078],[-18,17,0x8be078],[18,17,0x8be078]]) cube(8,.035,7,c,x,.0,z);
+ cube(14,.08,10,0x9fdcf5,0,-.015,-27); // dataran kecil di belakang sekolah
+
+ // Jalan utama: slab tunggal untuk setiap arah, tidak bertindih dengan permukaan rumput.
+ cube(11,.08,70,0xb8b8ad,0,-.005,0);
+ cube(70,.08,7,0xb8b8ad,0,-.005,0);
+ // Garisan jalan putus-putus, diletakkan sedikit di atas permukaan jalan.
+ for(let z=-30;z<=30;z+=5){cube(.14,.025,2.1,0xf8f2cc,0,.052,z);}
+ for(let x=-30;x<=30;x+=5){cube(2.1,.025,.14,0xf8f2cc,x,.053,0)}
+ makeBuilding(-10,-10,12,8,0xf3c46b,'BLOK A');makeBuilding(10,-13,10,8,0xffa9a0,'KANTIN');makeBuilding(12,10,13,9,0xd8e7f5,'PERPUSTAKAAN');
+ // school signage
+ cube(8,.8,.3,0x24567a,-10,4.3,-5);cube(7.5,.25,.12,0xffd166,-10,4.3,-4.78);
+ for(let z=-27;z<=27;z+=7){makeTree(-23,z);makeTree(23,z);}
+ for(let x=-18;x<=18;x+=8){makeTree(x,23);makeTree(x,-24);}
+ // benches and sports court
+ for(let x=-5;x<=5;x+=5){cube(2,.25,.7,0x9a633b,x,0.65,13);cube(.18,.65,.18,0x5b4638,x-.7,.3,13);cube(.18,.65,.18,0x5b4638,x+.7,.3,13)}
+ cube(7,.12,4,0x4385c8,-14,.02,12);cube(.12,.04,4,0xffffff,-14,.1,12);
+ // Laluan berturap, pasu bunga dan lampu sekolah untuk dunia lebih hidup
+ for(const [x,z] of [[-17,-7],[17,-7],[-17,7],[17,7],[-7,-18],[7,-18]]){cube(.75,.55,.75,0xb86b47,x,.25,z);cube(.55,.75,.55,0x3cae63,x,.85,z);cube(.7,.45,.7,0x56c879,x,1.35,z);}
+ for(const [x,z] of [[-7,1],[7,1],[-19,14],[19,14]]){cube(.12,3,.12,0x526d7a,x,1.5,z);cube(.7,.35,.7,0xffe7a0,x,3.1,z);}
+ cube(1.6,1.9,.18,0x78523a,-10,1,-5.82);cube(.12,.12,.12,0xffd166,-9.45,1,-5.68);
+ // Dua watak interaktif sahaja: Soalan 1 (merokok) dan Soalan 2 (nyamuk).
+ const questionSpots=[[-7,1],[7,1]];
+ const questionColors=[0x2878c8,0x16a085];
+ const questionNames=['Cikgu Azrai','Cikgu Amirul'];
+ questionSpots.forEach((p,i)=>{
+   const [x,z]=p, col=questionColors[i];
+   cube(2.5,.16,2.5,col,x,.03,z);
+   cube(1.8,.12,1.8,0xffd166,x,.15,z);
+   // Tiada papan atau kotak di atas kepala guru supaya nama jelas kelihatan.
+   makePerson(x,z,col,0x283b55,'student','question'+(i+1),questionNames[i],true,i+1);
+ });
+ // Penduduk tambahan untuk menjadikan kawasan sekolah lebih hidup.
+ makePerson(-15,-1,0x38a879,0x384b65,'student','vill1','',false,0);
+ makePerson(16,-3,0x9b6be8,0x34445b,'student','vill2','',false,0);
+ makePerson(2,-17,0xf08c37,0x34445b,'student','vill3','',false,0);
+ // player
+ player=new THREE.Group();scene.add(player);
+ cube(.7,.85,.48,0x38a5e8,0,1.05,0,player);cube(.5,.5,.5,0xffd2a1,0,1.73,0,player);cube(.53,.14,.53,0x4b3828,0,2.01,0,player);
+ cube(.22,.7,.25,0x38a5e8,-.25,.47,0,player);cube(.22,.7,.25,0x38a5e8,.25,.47,0,player);cube(.24,.7,.25,0x293d62,-.18,-.13,0,player);cube(.24,.7,.25,0x293d62,.18,-.13,0,player);
+ player.position.set(0,0,19);
+ clock=new THREE.Clock();animate();
+}
+const questionData=[
+ {title:'Soalan 1: Kesan Merokok',icon:'🚭',qs:[
+  {q:'Merokok akan menghabiskan ______ yang banyak.',opts:['Gigi','Paru-paru','Busuk','Wang','Udara'],a:3},
+  {q:'Merokok juga akan menjadikan badan kita berbau ______.',opts:['Gigi','Paru-paru','Busuk','Wang','Udara'],a:2},
+  {q:'Merokok akan kekuningan pada ______ kita.',opts:['Gigi','Paru-paru','Busuk','Wang','Udara'],a:0},
+  {q:'Merokok juga boleh mengakibatkan kita menghidap penyakit barah ______.',opts:['Gigi','Paru-paru','Busuk','Wang','Udara'],a:1},
+  {q:'Merokok juga menjadikan ______ kita tercemar.',opts:['Gigi','Paru-paru','Busuk','Wang','Udara'],a:4}]},
+ {title:'Soalan 2: Nyamuk',icon:'🦟',qs:[
+  {q:'Nyamuk Aedes menyebarkan penyakit…',opts:['Demam denggi','Malaria','Selesema'],a:0},
+  {q:'Nyamuk Tiruk menyebarkan penyakit…',opts:['Demam denggi','Malaria','Selesema'],a:1}]}
+];
+function openQuestion(id){if(completed.has(id)){showInfo('Soalan ini sudah dijawab.');return;}const n=Number(id.replace('question',''))-1;if(n<0||n>=questionData.length)return;showStationQuiz(id,n);}
+function showInfo(msg){overlay.innerHTML=`<div class="modal"><h2>📢 Makluman</h2><p>${msg}</p><button class="btn" id="closeInfo">KEMBALI KE DUNIA</button></div>`;overlay.style.display='flex';document.getElementById('closeInfo').onclick=()=>overlay.style.display='none';}
+function shell(title,body){overlay.innerHTML=`<div class="modal"><h2>${title}</h2>${body}<div id="feedback"></div><button class="btn" id="submit">HANTAR JAWAPAN</button> <button class="btn gold" id="back">KEMBALI KE DUNIA</button></div>`;overlay.style.display='flex';document.getElementById('back').onclick=()=>overlay.style.display='none';}
+function showStationQuiz(id,index){
+ const question=questionData[index];
+ const body=question.qs.map((q,i)=>`<div class="qrow"><b>${i+1}. ${q.q}</b><br><select id="q${i}" aria-label="Jawapan item ${i+1}"><option value="">Pilih jawapan</option>${q.opts.map((o,j)=>`<option value="${j}">${o}</option>`).join('')}</select></div>`).join('');
+ shell(`${question.icon} ${question.title}`,`<p>${index===0?'Pilih perkataan yang betul daripada bank kata bagi setiap tempat kosong.':'Pilih penyakit yang sepadan dengan setiap jenis nyamuk.'}</p>${index===0?'<p><b>Bank kata:</b> Gigi • Paru-paru • Busuk • Wang • Udara</p>':''}${body}`);
+ document.getElementById('submit').onclick=()=>{const selects=question.qs.map((_,i)=>document.getElementById('q'+i));if(selects.some(el=>el.value==='')){document.getElementById('feedback').textContent='Sila jawab semua item sebelum menghantar.';return;}const earned=question.qs.reduce((sum,q,i)=>sum+(Number(selects[i].value)===q.a?1:0),0);finishMission(id,earned,question.qs.length,`${question.title} selesai!`);};
+}
+function finishMission(id,earned,max,msg){completed.add(id);score+=earned;scoreEl.textContent=score;missionsEl.textContent=`Soalan dijawab: ${completed.size}/2`;npcList.forEach(n=>{if(n.id===id){n.done=true;if(n.labelSprite){n.labelSprite.material.color.set(0xb8ffd0);}}});overlay.innerHTML=`<div class="modal"><h2>✅ ${msg}</h2><p>Markah: <b>${earned}/${max}</b></p><button class="btn gold" id="continue">SAMBUNG MENEROKA</button></div>`;document.getElementById('continue').onclick=()=>{overlay.style.display='none';if(completed.size===2)ending();};}
+function ending(){finished=true;const berjaya=score>=5;const tajuk=berjaya?'🏆 Tahniah!':'💪 Usaha lagi!';const mesej=berjaya?'Bagus! Teruskan usaha menjaga kesihatan.':'Jangan putus asa. Cuba ulang kaji dan jawab sekali lagi untuk meningkatkan markah.';overlay.innerHTML=`<div class="modal"><h1>${tajuk}</h1><p>Kedua-dua soalan telah dijawab.</p><h2>Markah akhir: ${score}/7</h2><p>${mesej}</p><button class="btn gold" id="closeEnd">KEMBALI KE SEKOLAH</button></div>`;overlay.style.display='flex';document.getElementById('closeEnd').onclick=()=>overlay.style.display='none';}
+function animate(){requestAnimationFrame(animate);if(!scene)return;const dt=Math.min(clock.getDelta(),.05);
+ if(started&&!overlayIsOpen()){
+  let dx=mobile.x,dz=mobile.z;if(keys.ArrowUp||keys.w)dz-=1;if(keys.ArrowDown||keys.s)dz+=1;if(keys.ArrowLeft||keys.a)dx-=1;if(keys.ArrowRight||keys.d)dx+=1;
+  if(dx||dz){const len=Math.hypot(dx,dz);dx/=len;dz/=len;player.position.x+=dx*dt*6;player.position.z+=dz*dt*6;player.rotation.y=Math.atan2(dx,dz);player.position.x=Math.max(-29,Math.min(29,player.position.x));player.position.z=Math.max(-29,Math.min(29,player.position.z));}
+  if(jumpV!==0||player.position.y>0){player.position.y+=jumpV*dt;jumpV-=18*dt;if(player.position.y<=0){player.position.y=0;jumpV=0;}}
+  const target=new THREE.Vector3(player.position.x,player.position.y+2,player.position.z);
+  const desired=new THREE.Vector3(player.position.x,player.position.y+8,player.position.z+11);
+  camera.position.lerp(desired,.09);camera.lookAt(target);
+  nearNPC=null;let nearest=999;
+  npcList.forEach(n=>{if(n.labelSprite)n.labelSprite.position.y=2.82+Math.sin(performance.now()*.0025)*.045;const d=Math.hypot(player.position.x-n.group.position.x,player.position.z-n.group.position.z);if(n.mission&&!completed.has(n.id)&&d<4.2&&d<nearest){nearest=d;nearNPC=n;}});
+  if(nearNPC){interaction.style.display='block';interaction.textContent='👩‍🏫 Jumpa Cikgu';tip.textContent='Anda sudah dekat dengan cikgu! Tekan Jumpa Cikgu untuk menjawab soalan.';}else{interaction.style.display='none';tip.textContent='Terokai sekolah dan cari dua orang cikgu untuk menjawab soalan.';}
+ }
+ renderer.render(scene,camera);}
+function overlayIsOpen(){return overlay.style.display!=='none';}
+document.getElementById('start').onclick=()=>{overlay.style.display='none';started=true;};
+interaction.onclick=()=>{if(nearNPC)openQuestion(nearNPC.id);};
+document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();if(started&&!overlayIsOpen()&&player.position.y<=.01)jumpV=7;});
+const joyBase=document.getElementById('joyBase'),joyThumb=document.getElementById('joyThumb'),joy=document.getElementById('joystick');let joyPointer=null;
+function setJoy(e){const r=joyBase.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=r.width*.34,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max;}mobile.x=dx/max;mobile.z=dy/max;joyThumb.style.left=`calc(50% + ${dx}px)`;joyThumb.style.top=`calc(50% + ${dy}px)`;}
+function resetJoy(){joyPointer=null;mobile.x=0;mobile.z=0;joyThumb.style.left='50%';joyThumb.style.top='50%';}
+joy.addEventListener('pointerdown',e=>{e.preventDefault();joyPointer=e.pointerId;joy.setPointerCapture(e.pointerId);setJoy(e);});
+joy.addEventListener('pointermove',e=>{if(joyPointer===e.pointerId){e.preventDefault();setJoy(e);}});
+joy.addEventListener('pointerup',e=>{if(joyPointer===e.pointerId)resetJoy();});
+joy.addEventListener('pointercancel',resetJoy);
+addEventListener('keydown',e=>{keys[e.key]=true;keys[e.key.toLowerCase()]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();});
+addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false;});
+addEventListener('resize',()=>{if(camera&&renderer){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}});
+if(typeof THREE==='undefined'){root.innerHTML='<div style="padding:30px;background:white">Untuk memaparkan dunia 3D, sambungkan internet dan muat semula halaman.</div>';return;}
+init();
+})();
+</script>
+</body>
+</html>
